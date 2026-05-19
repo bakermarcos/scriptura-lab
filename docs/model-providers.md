@@ -100,3 +100,15 @@ build_embedding_adapter(settings)
 
 Routes, ingestion, retrieval, and answer generation should depend on these
 contracts instead of importing provider-specific clients directly.
+
+## Health Checks
+
+The API exposes provider health through stable endpoints used by the web UI:
+
+- `GET /health/llm`
+- `GET /health/embeddings`
+
+Each endpoint returns the configured provider, model, status, and optional error.
+The web app displays this information as compact status pills so local Ollama
+failures and optional OpenAI configuration issues are visible before a question
+is submitted.

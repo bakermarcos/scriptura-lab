@@ -11,7 +11,7 @@ Scriptura Lab uses a local-first RAG pipeline with configurable model providers:
 
 ## Components
 
-- `apps/web`: single-page chat UI
+- `apps/web`: single-page editorial study workspace
 - `apps/api`: FastAPI app, ingestion pipeline, vector search, and model provider adapters
 - `data/sample/sources`: project-created Markdown notes with frontmatter metadata
 - `scripts/ingest`: ingestion entrypoint for local indexing
@@ -23,6 +23,21 @@ Scriptura Lab uses a local-first RAG pipeline with configurable model providers:
 - Source-grounded responses
 - Explicit metadata for every indexed source
 - No copyrighted modern Bible translations in the repository
+- Stable public API contract between web and API
+
+## Web workspace
+
+The v0.2 web app keeps the backend API contract stable and improves presentation:
+
+- sticky top bar with brand, version badge, and compact service status;
+- visible service checks for API, generation provider, and embedding provider;
+- controlled question input with suggestions and preserved text on error;
+- RAG trail that mirrors the backend flow: question, embeddings, Qdrant, prompt, model;
+- answer panel with empty, loading, error, retry, and result states;
+- source cards with score, type, language, reference, and excerpt.
+
+The web app does not import provider-specific clients and does not call Ollama or
+OpenAI directly. Provider selection stays in the backend.
 
 ## Model provider harness
 
@@ -34,3 +49,16 @@ The backend separates model usage into two roles:
 The factory lives in `apps/api/app/services/models/factory.py`.
 Provider-specific adapters live in `apps/api/app/services/models/`,
 `apps/api/app/services/llm/`, and `apps/api/app/services/embeddings/`.
+
+## Public API boundary
+
+The frontend currently relies on:
+
+- `GET /health`
+- `GET /health/llm`
+- `GET /health/embeddings`
+- `GET /sources`
+- `POST /chat`
+
+Changing these response shapes should be treated as a public interface change and
+paired with TypeScript type updates in `apps/web/src/types/chat.ts`.

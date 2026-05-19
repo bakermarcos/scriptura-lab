@@ -15,12 +15,14 @@ Most AI Bible tools optimize for convenience first. Scriptura Lab is trying to o
 
 ## Current Status
 
-`v0.2` is in progress. The first v0.2 change adds a configurable model provider
-harness while keeping the v0.1 local RAG MVP working by default.
+`v0.2` is in progress. It adds a configurable model provider harness and a
+redesigned editorial web workspace while keeping the v0.1 local RAG MVP working
+by default.
 
 It currently includes:
 
 - React + Vite + TypeScript web app
+- Mantine-based editorial UI with custom CSS identity
 - FastAPI backend
 - Qdrant vector database
 - configurable model providers for generation and embeddings
@@ -28,6 +30,7 @@ It currently includes:
 - optional OpenAI integration for external generation and embeddings
 - Markdown source ingestion with frontmatter metadata
 - answer + sources response flow
+- visible RAG trail and compact provider health indicators in the UI
 - basic automated tests for core backend behavior
 
 It does not include yet:
@@ -98,6 +101,10 @@ Frontend:
 - React
 - Vite
 - TypeScript
+- Mantine
+- `lucide-react`
+- `@fontsource/newsreader`
+- `@fontsource/source-sans-3`
 
 Backend:
 
@@ -138,6 +145,12 @@ cp .env.example .env
 
 ### 2. Install Ollama models
 
+Start Ollama in a separate terminal if it is not already running:
+
+```bash
+ollama serve
+```
+
 ```bash
 ollama pull qwen2.5:7b
 ollama pull bge-m3
@@ -163,6 +176,12 @@ OPENAI_API_KEY=your-api-key-here
 
 ```bash
 docker compose up -d
+```
+
+If your Docker installation still uses the legacy Compose binary:
+
+```bash
+docker-compose up -d
 ```
 
 ### 4. Install project dependencies
@@ -264,7 +283,8 @@ make build-web
 
 ## Sample Data
 
-`v0.1` ships only with project-created sample notes inside `data/sample/sources`.
+`v0.2` still ships only with project-created sample notes inside
+`data/sample/sources`.
 
 These notes are intentionally small and safe:
 
@@ -274,6 +294,19 @@ These notes are intentionally small and safe:
 - approved for indexing in the MVP
 
 No modern copyrighted Bible translation is bundled or indexed.
+
+## Public Data Candidates
+
+Future downloadable datasets should be added only after license review and
+metadata mapping. Good candidate families include:
+
+- [SBL Greek New Testament](https://www.sblgnt.com/license/) for Greek New Testament text under its published license terms.
+- [Open Scriptures Hebrew Bible](https://hb.openscriptures.org/) for Hebrew text and morphology resources.
+- [Project Gutenberg KJV](https://www.gutenberg.org/ebooks/30) for public-domain-in-the-US English Bible text.
+- [unfoldingWord resources](https://www.unfoldingword.org/license/) for open-licensed biblical translation resources.
+
+Each imported file should keep source URL, license, attribution, language,
+reference, and `use_in_rag` metadata in frontmatter.
 
 ## Data and Licensing Policy
 
@@ -314,16 +347,16 @@ Current automated coverage includes:
 - [docs/local-setup.md](docs/local-setup.md)
 - [docs/model-providers.md](docs/model-providers.md)
 - [docs/rag-pipeline.md](docs/rag-pipeline.md)
+- [docs/web-ui.md](docs/web-ui.md)
 - [docs/data-policy.md](docs/data-policy.md)
 
 ## Roadmap
 
-Near-term directions after the v0.2 provider harness:
+Near-term directions after the v0.2 provider harness and web redesign:
 
 - better retrieval ranking and filtering
-- richer source cards and retrieval inspection in the UI
 - more robust chunking and ingestion diagnostics
-- downloadable public-domain and permissively licensed source packages
+- downloadable public-domain and permissively licensed source packages with license metadata
 - explicit source approval workflows
 - support for additional original-language study datasets
 - stronger evaluation and regression testing for grounded answers

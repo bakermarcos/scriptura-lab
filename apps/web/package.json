@@ -9,6 +9,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fontsource/newsreader": "^5.2.10",
+    "@fontsource/source-sans-3": "^5.2.9",
+    "@mantine/core": "^7.17.8",
+    "@mantine/hooks": "^7.17.8",
+    "lucide-react": "^1.16.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
