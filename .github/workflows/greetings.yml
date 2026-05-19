@@ -1,0 +1,40 @@
+name: Greetings
+
+on:
+  pull_request_target:
+  issues:
+
+jobs:
+  greeting:
+    runs-on: ubuntu-latest
+
+    permissions:
+      issues: write
+      pull-requests: write
+
+    steps:
+      - uses: actions/first-interaction@v1
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+          issue-message: |
+            Welcome to Scriptura Labs.
+
+            Thank you for opening your first issue and for helping shape this project.
+
+            Scriptura Labs is an open initiative exploring how technology can serve the Kingdom through biblical study, theological research, and accessible learning tools for the Church.
+
+            Please include as much context as possible so we can understand the problem, idea, or suggestion clearly.
+
+            We are grateful for your contribution. May this work be built with wisdom, humility, and excellence.
+
+          pr-message: |
+            Welcome to Scriptura Labs.
+
+            Thank you for opening your first pull request and for contributing to this project.
+
+            Scriptura Labs exists to build thoughtful, open technology that serves biblical study, theological exploration, and the Church.
+
+            Before review, please make sure your PR is clear, focused, and aligned with the purpose of the project.
+
+            We appreciate your contribution. May this work serve the Kingdom with clarity and excellence.
