@@ -12,9 +12,15 @@ class Settings(BaseSettings):
 
     WEB_API_BASE_URL: str = "http://localhost:8000"
 
+    LLM_PROVIDER: str = "ollama"
+    EMBEDDING_PROVIDER: str = "ollama"
+
     OLLAMA_BASE_URL: str = "http://localhost:11434"
     LLM_MODEL: str = "qwen2.5:7b"
     EMBEDDING_MODEL: str = "bge-m3"
+
+    OPENAI_BASE_URL: str = "https://api.openai.com/v1"
+    OPENAI_API_KEY: str = ""
 
     QDRANT_URL: str = "http://localhost:6333"
     QDRANT_COLLECTION: str = "scriptura_sources"
@@ -41,4 +47,3 @@ class Settings(BaseSettings):
 @lru_cache
 def get_settings() -> Settings:
     return Settings()
-

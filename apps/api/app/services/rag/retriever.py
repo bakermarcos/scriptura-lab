@@ -1,12 +1,12 @@
 from app.schemas.source import RetrievedChunk
-from app.services.embeddings.ollama_embeddings import OllamaEmbeddingService
+from app.services.models.base import EmbeddingAdapter
 from app.services.vector.qdrant_store import QdrantStore
 
 
 class Retriever:
     def __init__(
         self,
-        embedding_service: OllamaEmbeddingService,
+        embedding_service: EmbeddingAdapter,
         store: QdrantStore,
         limit: int = 6,
     ) -> None:
@@ -25,4 +25,3 @@ class Retriever:
             limit=self.limit,
             languages=languages,
         )
-

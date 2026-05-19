@@ -2,9 +2,9 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from app.schemas.source import EmbeddedChunk
-from app.services.embeddings.ollama_embeddings import OllamaEmbeddingService
 from app.services.ingestion.chunker import TextChunker
 from app.services.ingestion.markdown_loader import MarkdownLoader
+from app.services.models.base import EmbeddingAdapter
 from app.services.vector.qdrant_store import QdrantStore
 
 
@@ -21,7 +21,7 @@ class IngestService:
         self,
         loader: MarkdownLoader,
         chunker: TextChunker,
-        embedding_service: OllamaEmbeddingService,
+        embedding_service: EmbeddingAdapter,
         store: QdrantStore,
     ) -> None:
         self.loader = loader
@@ -61,4 +61,3 @@ class IngestService:
             chunks_indexed=len(embedded_chunks),
             collection_name=self.store.collection_name,
         )
-

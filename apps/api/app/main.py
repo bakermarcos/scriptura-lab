@@ -5,8 +5,8 @@ from app.routes import chat, health, sources
 
 app = FastAPI(
     title="Scriptura Lab API",
-    version="0.1.0",
-    description="Local-first Bible study assistant backend powered by RAG and Ollama.",
+    version="0.2.0",
+    description="Local-first Bible study assistant backend powered by RAG and configurable model providers.",
 )
 
 app.add_middleware(
@@ -20,4 +20,3 @@ app.add_middleware(
 app.include_router(health.router)
 app.include_router(sources.router)
 app.include_router(chat.router)
-

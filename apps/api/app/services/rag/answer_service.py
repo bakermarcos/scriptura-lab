@@ -1,6 +1,6 @@
 from app.schemas.chat import ChatResponse, ChatSource
 from app.schemas.source import RetrievedChunk
-from app.services.llm.ollama_client import OllamaClient
+from app.services.models.base import TextGenerationAdapter
 from app.services.rag.prompt_builder import PromptBuilder
 from app.services.rag.retriever import Retriever
 
@@ -14,7 +14,7 @@ class AnswerService:
         self,
         retriever: Retriever,
         prompt_builder: PromptBuilder,
-        llm_client: OllamaClient,
+        llm_client: TextGenerationAdapter,
         default_response_language: str,
         default_source_languages: list[str],
         min_score_threshold: float = 0.35,
@@ -75,4 +75,3 @@ class AnswerService:
         if len(normalized) <= limit:
             return normalized
         return normalized[: limit - 3].rstrip() + "..."
-

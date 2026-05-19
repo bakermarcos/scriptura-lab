@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { getHealth, getLlmHealth } from "../services/api";
+import { getEmbeddingHealth, getHealth, getLlmHealth } from "../services/api";
 
 type StatusCard = {
   label: string;
@@ -21,13 +21,19 @@ export function HealthStatus() {
     value: "checking",
     tone: "neutral",
   });
+  const [embeddingStatus, setEmbeddingStatus] = useState<StatusCard>({
+    label: "Embeddings",
+    value: "checking",
+    tone: "neutral",
+  });
 
   async function refresh() {
     setLoading(true);
 
-    const [apiResult, llmResult] = await Promise.allSettled([
+    const [apiResult, llmResult, embeddingResult] = await Promise.allSettled([
       getHealth(),
       getLlmHealth(),
+      getEmbeddingHealth(),
     ]);
 
     if (apiResult.status === "fulfilled" && apiResult.value.status === "ok") {
@@ -56,7 +62,7 @@ export function HealthStatus() {
         label: "LLM",
         value: payload.status,
         tone: payload.status === "available" ? "positive" : "negative",
-        detail: payload.error || payload.model,
+        detail: payload.error || `${payload.provider}: ${payload.model}`,
       });
     } else {
       setLlmStatus({
@@ -67,6 +73,26 @@ export function HealthStatus() {
           llmResult.reason instanceof Error
             ? llmResult.reason.message
             : "Unknown LLM error",
+      });
+    }
+
+    if (embeddingResult.status === "fulfilled") {
+      const payload = embeddingResult.value;
+      setEmbeddingStatus({
+        label: "Embeddings",
+        value: payload.status,
+        tone: payload.status === "available" ? "positive" : "negative",
+        detail: payload.error || `${payload.provider}: ${payload.model}`,
+      });
+    } else {
+      setEmbeddingStatus({
+        label: "Embeddings",
+        value: "unreachable",
+        tone: "negative",
+        detail:
+          embeddingResult.reason instanceof Error
+            ? embeddingResult.reason.message
+            : "Unknown embedding error",
       });
     }
 
@@ -95,7 +121,7 @@ export function HealthStatus() {
       </div>
 
       <div className="status-grid">
-        {[apiStatus, llmStatus].map((item) => (
+        {[apiStatus, llmStatus, embeddingStatus].map((item) => (
           <article className="status-item" key={item.label}>
             <span className="status-label">{item.label}</span>
             <span className={`status-pill status-${item.tone}`}>{item.value}</span>
@@ -106,4 +132,3 @@ export function HealthStatus() {
     </section>
   );
 }
-

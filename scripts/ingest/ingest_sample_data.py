@@ -8,10 +8,10 @@ if str(API_DIR) not in sys.path:
     sys.path.insert(0, str(API_DIR))
 
 from app.core.config import get_settings
-from app.services.embeddings.ollama_embeddings import OllamaEmbeddingService
 from app.services.ingestion.chunker import TextChunker
 from app.services.ingestion.ingest_service import IngestService
 from app.services.ingestion.markdown_loader import MarkdownLoader
+from app.services.models.factory import build_embedding_adapter
 from app.services.vector.qdrant_store import QdrantStore
 
 
@@ -20,10 +20,7 @@ def main() -> None:
     ingest_service = IngestService(
         loader=MarkdownLoader(),
         chunker=TextChunker(),
-        embedding_service=OllamaEmbeddingService(
-            base_url=settings.OLLAMA_BASE_URL,
-            model=settings.EMBEDDING_MODEL,
-        ),
+        embedding_service=build_embedding_adapter(settings),
         store=QdrantStore(
             url=settings.QDRANT_URL,
             collection_name=settings.QDRANT_COLLECTION,

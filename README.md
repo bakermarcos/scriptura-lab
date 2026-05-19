@@ -15,14 +15,17 @@ Most AI Bible tools optimize for convenience first. Scriptura Lab is trying to o
 
 ## Current Status
 
-`v0.1` is the first working local RAG MVP.
+`v0.2` is in progress. The first v0.2 change adds a configurable model provider
+harness while keeping the v0.1 local RAG MVP working by default.
 
 It currently includes:
 
 - React + Vite + TypeScript web app
 - FastAPI backend
 - Qdrant vector database
-- Ollama integration for both generation and embeddings
+- configurable model providers for generation and embeddings
+- Ollama integration for local generation and embeddings
+- optional OpenAI integration for external generation and embeddings
 - Markdown source ingestion with frontmatter metadata
 - answer + sources response flow
 - basic automated tests for core backend behavior
@@ -42,10 +45,10 @@ It does not include yet:
 
 1. A user opens the web UI.
 2. The UI sends a biblical question to the API.
-3. The API generates an embedding for the question using Ollama.
+3. The API generates an embedding for the question using the configured embedding provider.
 4. Qdrant retrieves the most relevant indexed chunks.
 5. The backend builds a constrained prompt using only those sources.
-6. Ollama generates an answer in Portuguese.
+6. The configured LLM provider generates an answer in Portuguese.
 7. The UI renders the answer and the retrieved sources.
 
 ## Architecture
@@ -53,11 +56,11 @@ It does not include yet:
 ```mermaid
 flowchart TD
     A["React Web UI"] --> B["FastAPI API"]
-    B --> C["Ollama Embeddings"]
+    B --> C["Embedding Adapter"]
     C --> D["Qdrant Search"]
     D --> B
     B --> E["Prompt Builder"]
-    E --> F["Ollama Generation"]
+    E --> F["LLM Adapter"]
     F --> B
     B --> A
 ```
@@ -109,8 +112,9 @@ Infra:
 
 - Qdrant via Docker Compose
 - Ollama running locally outside Docker
+- OpenAI API as an optional external provider
 
-Recommended models:
+Default local models:
 
 - `qwen2.5:7b`
 - `bge-m3`
@@ -118,6 +122,11 @@ Recommended models:
 Fallback embedding model:
 
 - `nomic-embed-text`
+
+Optional OpenAI models:
+
+- `gpt-5.5` for generation
+- `text-embedding-3-small` for embeddings
 
 ## Quick Start
 
@@ -138,6 +147,16 @@ Fallback embedding model:
 
 ```bash
 ollama pull nomic-embed-text
+```
+
+To use OpenAI instead, set these values in `.env` and provide an API key:
+
+```env
+LLM_PROVIDER=openai
+LLM_MODEL=gpt-5.5
+EMBEDDING_PROVIDER=openai
+EMBEDDING_MODEL=text-embedding-3-small
+OPENAI_API_KEY=your-api-key-here
 ```
 
 ### 3. Start Qdrant
@@ -208,7 +227,8 @@ make build-web
 | Endpoint | Method | Purpose |
 | --- | --- | --- |
 | `/health` | `GET` | basic API status |
-| `/health/llm` | `GET` | Ollama availability check |
+| `/health/llm` | `GET` | configured generation provider availability check |
+| `/health/embeddings` | `GET` | configured embedding provider availability check |
 | `/sources` | `GET` | list indexed source summaries |
 | `/chat` | `POST` | run RAG answer generation |
 
@@ -282,6 +302,8 @@ Current automated coverage includes:
 
 - API health behavior
 - controlled LLM unavailable response
+- configurable model provider factory
+- OpenAI response parsing
 - Markdown loader parsing and validation
 - prompt builder rendering
 - Qdrant adapter behavior for upsert and query mapping
@@ -290,16 +312,18 @@ Current automated coverage includes:
 
 - [docs/architecture.md](docs/architecture.md)
 - [docs/local-setup.md](docs/local-setup.md)
+- [docs/model-providers.md](docs/model-providers.md)
 - [docs/rag-pipeline.md](docs/rag-pipeline.md)
 - [docs/data-policy.md](docs/data-policy.md)
 
 ## Roadmap
 
-Near-term directions after `v0.1`:
+Near-term directions after the v0.2 provider harness:
 
 - better retrieval ranking and filtering
 - richer source cards and retrieval inspection in the UI
 - more robust chunking and ingestion diagnostics
+- downloadable public-domain and permissively licensed source packages
 - explicit source approval workflows
 - support for additional original-language study datasets
 - stronger evaluation and regression testing for grounded answers

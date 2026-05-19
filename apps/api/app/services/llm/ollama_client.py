@@ -1,11 +1,15 @@
 import httpx
 
+from app.services.models.base import ModelProviderError
 
-class OllamaConnectionError(RuntimeError):
+
+class OllamaConnectionError(ModelProviderError):
     """Raised when Ollama cannot be reached or returns an invalid payload."""
 
 
 class OllamaClient:
+    provider = "ollama"
+
     def __init__(self, base_url: str, model: str, timeout_seconds: float = 60.0) -> None:
         self.base_url = base_url.rstrip("/")
         self.model = model
@@ -45,4 +49,3 @@ class OllamaClient:
         if not answer:
             raise OllamaConnectionError("Ollama returned an empty response.")
         return answer
-

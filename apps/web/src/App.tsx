@@ -35,11 +35,11 @@ export default function App() {
   return (
     <main className="app-shell">
       <section className="hero panel">
-        <span className="eyebrow">Scriptura Lab v0.1</span>
+        <span className="eyebrow">Scriptura Lab v0.2</span>
         <h1>Estudo bíblico com RAG local, fontes rastreáveis e resposta verificável.</h1>
         <p className="hero-copy">
-          Faça uma pergunta, recupere notas indexadas no Qdrant e peça ao Ollama
-          para responder apenas com base nas fontes disponíveis.
+          Faça uma pergunta, recupere notas indexadas no Qdrant e use o modelo
+          configurado para responder apenas com base nas fontes disponíveis.
         </p>
       </section>
 
@@ -74,4 +74,3 @@ export default function App() {
     </main>
   );
 }
-
