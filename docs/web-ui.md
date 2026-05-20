@@ -84,3 +84,7 @@ For manual validation, run the API and web app, then test:
 - answer rendering;
 - source cards;
 - retry/error behavior when the API is offline.
+
+The default backend retrieval language list includes `pt-BR`, `en`, `grc`, and
+`hbo`, so bundled project notes, English KJV excerpts, Greek excerpts, and Hebrew
+excerpts can all be retrieved unless a request overrides `source_languages`.

@@ -11,6 +11,8 @@ FastAPI backend for the local-first Scriptura Lab RAG MVP.
 - build grounded prompts;
 - generate answers through the configured LLM adapter;
 - expose health checks consumed by the web app.
+- ingest configured source directories, including `data/open/sources` and
+  `data/custom/sources`.
 
 ## Local Run
 
@@ -35,3 +37,14 @@ Open [http://localhost:8000/docs](http://localhost:8000/docs).
 
 The web UI depends on these response shapes, so changes should be coordinated
 with `apps/web/src/types/chat.ts`.
+
+## Ingestion Sources
+
+The default source directories are configured by `INGEST_SOURCE_DIRS`:
+
+```env
+INGEST_SOURCE_DIRS=data/sample/sources,data/open/sources,data/custom/sources
+```
+
+Use `data/custom/sources` for new local documents. See
+`data/custom/README.md` for the required frontmatter template.

@@ -14,6 +14,8 @@ Scriptura Lab uses a local-first RAG pipeline with configurable model providers:
 - `apps/web`: single-page editorial study workspace
 - `apps/api`: FastAPI app, ingestion pipeline, vector search, and model provider adapters
 - `data/sample/sources`: project-created Markdown notes with frontmatter metadata
+- `data/open/sources`: small approved open corpus seed for RAG
+- `data/custom/sources`: user-added local documents
 - `scripts/ingest`: ingestion entrypoint for local indexing
 - `docker-compose.yml`: local Qdrant service
 

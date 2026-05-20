@@ -31,6 +31,7 @@ It currently includes:
 - Markdown source ingestion with frontmatter metadata
 - answer + sources response flow
 - visible RAG trail and compact provider health indicators in the UI
+- bundled open corpus seed and `data/custom/sources` for user-added documents
 - basic automated tests for core backend behavior
 
 It does not include yet:
@@ -86,6 +87,10 @@ scriptura-lab/
   data/
     sample/
       sources/            Project-created sample study notes
+    open/
+      sources/            Small approved open corpus seed
+    custom/
+      sources/            Local/project documents added by the user
   docs/                   Project docs and policies
   scripts/
     ingest/               Local ingestion entrypoint
@@ -172,6 +177,13 @@ EMBEDDING_MODEL=text-embedding-3-small
 OPENAI_API_KEY=your-api-key-here
 ```
 
+Default ingestion and retrieval settings:
+
+```env
+INGEST_SOURCE_DIRS=data/sample/sources,data/open/sources,data/custom/sources
+DEFAULT_SOURCE_LANGUAGES=pt-BR,en,grc,hbo
+```
+
 ### 3. Start Qdrant
 
 ```bash
@@ -196,7 +208,7 @@ make install
 make api
 ```
 
-### 6. Ingest sample sources
+### 6. Ingest configured sources
 
 From the repository root:
 
@@ -204,12 +216,17 @@ From the repository root:
 make ingest
 ```
 
-Expected output:
+Expected output includes one block per configured source directory and a final
+summary:
 
 ```txt
-Loaded documents: 5
-Created chunks: 5
-Indexed chunks: 5
+Source directory: data/sample/sources
+  Loaded documents: 5
+Source directory: data/open/sources
+  Loaded documents: 7
+Source directory: data/custom/sources
+  Loaded documents: 0
+Loaded documents: 12
 Collection: scriptura_sources
 ```
 
@@ -283,17 +300,33 @@ make build-web
 
 ## Sample Data
 
-`v0.2` still ships only with project-created sample notes inside
-`data/sample/sources`.
+`v0.2` ships with two bundled source sets:
 
-These notes are intentionally small and safe:
+- project-created sample notes inside `data/sample/sources`;
+- a small open corpus seed inside `data/open/sources`.
+
+These sources are intentionally small and safe:
 
 - study notes
 - lexical note
+- public-domain KJV excerpts
+- short original-language excerpts with attribution metadata
+- open source catalog notes
 - explicit frontmatter metadata
 - approved for indexing in the MVP
 
 No modern copyrighted Bible translation is bundled or indexed.
+
+## Adding Documents
+
+Add local documents to:
+
+```txt
+data/custom/sources/
+```
+
+Use [data/custom/README.md](data/custom/README.md) as the frontmatter template.
+The default `make ingest` command includes this directory.
 
 ## Public Data Candidates
 
@@ -302,11 +335,11 @@ metadata mapping. Good candidate families include:
 
 - [SBL Greek New Testament](https://www.sblgnt.com/license/) for Greek New Testament text under its published license terms.
 - [Open Scriptures Hebrew Bible](https://hb.openscriptures.org/) for Hebrew text and morphology resources.
-- [Project Gutenberg KJV](https://www.gutenberg.org/ebooks/30) for public-domain-in-the-US English Bible text.
+- [Project Gutenberg KJV](https://www.gutenberg.org/ebooks/10) for public-domain-in-the-US English Bible text.
 - [unfoldingWord resources](https://www.unfoldingword.org/license/) for open-licensed biblical translation resources.
 
-Each imported file should keep source URL, license, attribution, language,
-reference, and `use_in_rag` metadata in frontmatter.
+Each imported file must keep source URL, license, attribution, language,
+reference, status, and `use_in_rag` metadata in frontmatter.
 
 ## Data and Licensing Policy
 

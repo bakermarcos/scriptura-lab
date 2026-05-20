@@ -1,0 +1,22 @@
+---
+id: kjv-genesis-1-1-5
+title: KJV Genesis 1:1-5
+type: biblical_text
+language: en
+license: public-domain-us
+reference: Genesis 1:1-5
+source_url: https://www.gutenberg.org/ebooks/10
+attribution: King James Version, Project Gutenberg eBook #10
+use_in_rag: true
+status: approved
+---
+
+Genesis 1:1 In the beginning God created the heaven and the earth.
+
+Genesis 1:2 And the earth was without form, and void; and darkness was upon the face of the deep. And the Spirit of God moved upon the face of the waters.
+
+Genesis 1:3 And God said, Let there be light: and there was light.
+
+Genesis 1:4 And God saw the light, that it was good: and God divided the light from the darkness.
+
+Genesis 1:5 And God called the light Day, and the darkness he called Night. And the evening and the morning were the first day.

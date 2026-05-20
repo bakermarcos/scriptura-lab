@@ -25,6 +25,13 @@ OPENAI_API_KEY=your-api-key-here
 
 See [model-providers.md](model-providers.md) for adapter details.
 
+Default ingestion and retrieval settings:
+
+```env
+INGEST_SOURCE_DIRS=data/sample/sources,data/open/sources,data/custom/sources
+DEFAULT_SOURCE_LANGUAGES=pt-BR,en,grc,hbo
+```
+
 ## 2. Ollama
 
 Install Ollama locally. If it is not already running, start it in a separate
@@ -85,9 +92,18 @@ From the repository root:
 make ingest
 ```
 
-Ingestion uses the configured `EMBEDDING_PROVIDER`. If you change embedding
-provider or model, use a fresh `QDRANT_COLLECTION` or recreate the existing
-collection before ingesting again.
+Ingestion uses the configured `INGEST_SOURCE_DIRS` and `EMBEDDING_PROVIDER`.
+By default it indexes project sample notes, the bundled open corpus seed, and
+anything added under `data/custom/sources`.
+
+If you change embedding provider or model, use a fresh `QDRANT_COLLECTION` or
+recreate the existing collection before ingesting again.
+
+To ingest only selected directories:
+
+```bash
+INGEST_SOURCE_DIRS=data/custom/sources make ingest
+```
 
 ## 6. Web
 

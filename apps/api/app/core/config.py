@@ -24,9 +24,10 @@ class Settings(BaseSettings):
 
     QDRANT_URL: str = "http://localhost:6333"
     QDRANT_COLLECTION: str = "scriptura_sources"
+    INGEST_SOURCE_DIRS: str = "data/sample/sources,data/open/sources,data/custom/sources"
 
     DEFAULT_RESPONSE_LANGUAGE: str = "pt-BR"
-    DEFAULT_SOURCE_LANGUAGES: str = "pt-BR,en"
+    DEFAULT_SOURCE_LANGUAGES: str = "pt-BR,en,grc,hbo"
 
     model_config = SettingsConfigDict(
         env_file=ROOT_DIR / ".env",
@@ -41,6 +42,14 @@ class Settings(BaseSettings):
             language.strip()
             for language in self.DEFAULT_SOURCE_LANGUAGES.split(",")
             if language.strip()
+        ]
+
+    @property
+    def ingest_source_dirs(self) -> list[str]:
+        return [
+            directory.strip()
+            for directory in self.INGEST_SOURCE_DIRS.split(",")
+            if directory.strip()
         ]
 
 

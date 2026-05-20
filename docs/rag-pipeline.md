@@ -2,7 +2,7 @@
 
 ## Ingestion flow
 
-1. Load Markdown files from `data/sample/sources`.
+1. Load Markdown files from each configured `INGEST_SOURCE_DIRS` directory.
 2. Parse YAML frontmatter and Markdown body.
 3. Chunk the content into paragraph-based segments.
 4. Generate embeddings for each chunk with the configured embedding provider.
@@ -16,6 +16,12 @@
 4. Build a prompt that includes the retrieved source excerpts.
 5. Ask the configured LLM provider to answer only from the provided context.
 6. Return the answer and the retrieved sources to the frontend.
+
+The default directories are:
+
+- `data/sample/sources`
+- `data/open/sources`
+- `data/custom/sources`
 
 ## Web inspection flow
 

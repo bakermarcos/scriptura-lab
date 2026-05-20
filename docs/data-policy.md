@@ -2,7 +2,8 @@
 
 Scriptura Lab only indexes sources that are explicitly approved for use.
 
-For v0.2, only project-created sample notes are included in the repository.
+For v0.2, the repository includes project-created sample notes and a small open
+corpus seed with explicit license and attribution metadata.
 
 No modern copyrighted Bible translation should be added without explicit permission for:
 
@@ -31,8 +32,22 @@ redistribution constraints have been reviewed.
 | --- | --- | --- |
 | [SBL Greek New Testament](https://www.sblgnt.com/license/) | Greek New Testament text | Published license with attribution requirements |
 | [Open Scriptures Hebrew Bible](https://hb.openscriptures.org/) | Hebrew text and morphology | Open Scriptures morphology resources use CC BY 4.0 attribution terms |
-| [Project Gutenberg KJV](https://www.gutenberg.org/ebooks/30) | Public-domain-in-the-US English Bible text | Public domain in the United States |
+| [Project Gutenberg KJV](https://www.gutenberg.org/ebooks/10) | Public-domain-in-the-US English Bible text | Public domain in the United States |
 | [unfoldingWord resources](https://www.unfoldingword.org/license/) | Open biblical translation resources | Open licenses vary by resource and require review |
+
+## Bundled Open Corpus Seed
+
+Bundled open files live in `data/open/sources`.
+
+The initial seed includes:
+
+- short KJV excerpts from Project Gutenberg, marked `public-domain-us`;
+- a short SBLGNT John 1 excerpt, marked `CC-BY-4.0`;
+- a short OSHB/WLC Genesis 1 excerpt, marked `public-domain-wlc`;
+- a project-created open source catalog note.
+
+Do not expand this directory with full corpora until the import process preserves
+license, attribution, source URL, language, reference, and approval metadata.
 
 ## Required Frontmatter
 
