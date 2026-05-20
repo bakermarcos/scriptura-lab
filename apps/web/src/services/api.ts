@@ -39,10 +39,13 @@ export function getLlmHealth(): Promise<LlmHealthResponse> {
   return request<LlmHealthResponse>("/health/llm");
 }
 
+export function getEmbeddingHealth(): Promise<LlmHealthResponse> {
+  return request<LlmHealthResponse>("/health/embeddings");
+}
+
 export function sendChat(question: string): Promise<ChatResponse> {
   return request<ChatResponse>("/chat", {
     method: "POST",
     body: JSON.stringify({ question }),
   });
 }
-

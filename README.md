@@ -15,16 +15,23 @@ Most AI Bible tools optimize for convenience first. Scriptura Lab is trying to o
 
 ## Current Status
 
-`v0.1` is the first working local RAG MVP.
+`v0.2` is in progress. It adds a configurable model provider harness and a
+redesigned editorial web workspace while keeping the v0.1 local RAG MVP working
+by default.
 
 It currently includes:
 
 - React + Vite + TypeScript web app
+- Mantine-based editorial UI with custom CSS identity
 - FastAPI backend
 - Qdrant vector database
-- Ollama integration for both generation and embeddings
+- configurable model providers for generation and embeddings
+- Ollama integration for local generation and embeddings
+- optional OpenAI integration for external generation and embeddings
 - Markdown source ingestion with frontmatter metadata
 - answer + sources response flow
+- visible RAG trail and compact provider health indicators in the UI
+- bundled open corpus seed and `data/custom/sources` for user-added documents
 - basic automated tests for core backend behavior
 
 It does not include yet:
@@ -42,10 +49,10 @@ It does not include yet:
 
 1. A user opens the web UI.
 2. The UI sends a biblical question to the API.
-3. The API generates an embedding for the question using Ollama.
+3. The API generates an embedding for the question using the configured embedding provider.
 4. Qdrant retrieves the most relevant indexed chunks.
 5. The backend builds a constrained prompt using only those sources.
-6. Ollama generates an answer in Portuguese.
+6. The configured LLM provider generates an answer in Portuguese.
 7. The UI renders the answer and the retrieved sources.
 
 ## Architecture
@@ -53,11 +60,11 @@ It does not include yet:
 ```mermaid
 flowchart TD
     A["React Web UI"] --> B["FastAPI API"]
-    B --> C["Ollama Embeddings"]
+    B --> C["Embedding Adapter"]
     C --> D["Qdrant Search"]
     D --> B
     B --> E["Prompt Builder"]
-    E --> F["Ollama Generation"]
+    E --> F["LLM Adapter"]
     F --> B
     B --> A
 ```
@@ -80,6 +87,10 @@ scriptura-lab/
   data/
     sample/
       sources/            Project-created sample study notes
+    open/
+      sources/            Small approved open corpus seed
+    custom/
+      sources/            Local/project documents added by the user
   docs/                   Project docs and policies
   scripts/
     ingest/               Local ingestion entrypoint
@@ -95,6 +106,10 @@ Frontend:
 - React
 - Vite
 - TypeScript
+- Mantine
+- `lucide-react`
+- `@fontsource/newsreader`
+- `@fontsource/source-sans-3`
 
 Backend:
 
@@ -109,8 +124,9 @@ Infra:
 
 - Qdrant via Docker Compose
 - Ollama running locally outside Docker
+- OpenAI API as an optional external provider
 
-Recommended models:
+Default local models:
 
 - `qwen2.5:7b`
 - `bge-m3`
@@ -118,6 +134,11 @@ Recommended models:
 Fallback embedding model:
 
 - `nomic-embed-text`
+
+Optional OpenAI models:
+
+- `gpt-5.5` for generation
+- `text-embedding-3-small` for embeddings
 
 ## Quick Start
 
@@ -128,6 +149,12 @@ cp .env.example .env
 ```
 
 ### 2. Install Ollama models
+
+Start Ollama in a separate terminal if it is not already running:
+
+```bash
+ollama serve
+```
 
 ```bash
 ollama pull qwen2.5:7b
@@ -140,10 +167,33 @@ Fallback embedding model:
 ollama pull nomic-embed-text
 ```
 
+To use OpenAI instead, set these values in `.env` and provide an API key:
+
+```env
+LLM_PROVIDER=openai
+LLM_MODEL=gpt-5.5
+EMBEDDING_PROVIDER=openai
+EMBEDDING_MODEL=text-embedding-3-small
+OPENAI_API_KEY=your-api-key-here
+```
+
+Default ingestion and retrieval settings:
+
+```env
+INGEST_SOURCE_DIRS=data/sample/sources,data/open/sources,data/custom/sources
+DEFAULT_SOURCE_LANGUAGES=pt-BR,en,grc,hbo
+```
+
 ### 3. Start Qdrant
 
 ```bash
 docker compose up -d
+```
+
+If your Docker installation still uses the legacy Compose binary:
+
+```bash
+docker-compose up -d
 ```
 
 ### 4. Install project dependencies
@@ -158,7 +208,7 @@ make install
 make api
 ```
 
-### 6. Ingest sample sources
+### 6. Ingest configured sources
 
 From the repository root:
 
@@ -166,12 +216,17 @@ From the repository root:
 make ingest
 ```
 
-Expected output:
+Expected output includes one block per configured source directory and a final
+summary:
 
 ```txt
-Loaded documents: 5
-Created chunks: 5
-Indexed chunks: 5
+Source directory: data/sample/sources
+  Loaded documents: 5
+Source directory: data/open/sources
+  Loaded documents: 7
+Source directory: data/custom/sources
+  Loaded documents: 0
+Loaded documents: 12
 Collection: scriptura_sources
 ```
 
@@ -208,7 +263,8 @@ make build-web
 | Endpoint | Method | Purpose |
 | --- | --- | --- |
 | `/health` | `GET` | basic API status |
-| `/health/llm` | `GET` | Ollama availability check |
+| `/health/llm` | `GET` | configured generation provider availability check |
+| `/health/embeddings` | `GET` | configured embedding provider availability check |
 | `/sources` | `GET` | list indexed source summaries |
 | `/chat` | `POST` | run RAG answer generation |
 
@@ -244,16 +300,46 @@ make build-web
 
 ## Sample Data
 
-`v0.1` ships only with project-created sample notes inside `data/sample/sources`.
+`v0.2` ships with two bundled source sets:
 
-These notes are intentionally small and safe:
+- project-created sample notes inside `data/sample/sources`;
+- a small open corpus seed inside `data/open/sources`.
+
+These sources are intentionally small and safe:
 
 - study notes
 - lexical note
+- public-domain KJV excerpts
+- short original-language excerpts with attribution metadata
+- open source catalog notes
 - explicit frontmatter metadata
 - approved for indexing in the MVP
 
 No modern copyrighted Bible translation is bundled or indexed.
+
+## Adding Documents
+
+Add local documents to:
+
+```txt
+data/custom/sources/
+```
+
+Use [data/custom/README.md](data/custom/README.md) as the frontmatter template.
+The default `make ingest` command includes this directory.
+
+## Public Data Candidates
+
+Future downloadable datasets should be added only after license review and
+metadata mapping. Good candidate families include:
+
+- [SBL Greek New Testament](https://www.sblgnt.com/license/) for Greek New Testament text under its published license terms.
+- [Open Scriptures Hebrew Bible](https://hb.openscriptures.org/) for Hebrew text and morphology resources.
+- [Project Gutenberg KJV](https://www.gutenberg.org/ebooks/10) for public-domain-in-the-US English Bible text.
+- [unfoldingWord resources](https://www.unfoldingword.org/license/) for open-licensed biblical translation resources.
+
+Each imported file must keep source URL, license, attribution, language,
+reference, status, and `use_in_rag` metadata in frontmatter.
 
 ## Data and Licensing Policy
 
@@ -282,6 +368,8 @@ Current automated coverage includes:
 
 - API health behavior
 - controlled LLM unavailable response
+- configurable model provider factory
+- OpenAI response parsing
 - Markdown loader parsing and validation
 - prompt builder rendering
 - Qdrant adapter behavior for upsert and query mapping
@@ -290,16 +378,18 @@ Current automated coverage includes:
 
 - [docs/architecture.md](docs/architecture.md)
 - [docs/local-setup.md](docs/local-setup.md)
+- [docs/model-providers.md](docs/model-providers.md)
 - [docs/rag-pipeline.md](docs/rag-pipeline.md)
+- [docs/web-ui.md](docs/web-ui.md)
 - [docs/data-policy.md](docs/data-policy.md)
 
 ## Roadmap
 
-Near-term directions after `v0.1`:
+Near-term directions after the v0.2 provider harness and web redesign:
 
 - better retrieval ranking and filtering
-- richer source cards and retrieval inspection in the UI
 - more robust chunking and ingestion diagnostics
+- downloadable public-domain and permissively licensed source packages with license metadata
 - explicit source approval workflows
 - support for additional original-language study datasets
 - stronger evaluation and regression testing for grounded answers

@@ -2,8 +2,8 @@ from fastapi import APIRouter, HTTPException
 
 from app.core.config import get_settings
 from app.schemas.chat import ChatRequest, ChatResponse
-from app.services.embeddings.ollama_embeddings import OllamaEmbeddingService
-from app.services.llm.ollama_client import OllamaClient, OllamaConnectionError
+from app.services.models.base import ModelProviderError
+from app.services.models.factory import build_embedding_adapter, build_generation_adapter
 from app.services.rag.answer_service import AnswerService
 from app.services.rag.prompt_builder import PromptBuilder
 from app.services.rag.retriever import Retriever
@@ -18,18 +18,12 @@ def build_answer_service() -> AnswerService:
         url=settings.QDRANT_URL,
         collection_name=settings.QDRANT_COLLECTION,
     )
-    embeddings = OllamaEmbeddingService(
-        base_url=settings.OLLAMA_BASE_URL,
-        model=settings.EMBEDDING_MODEL,
-    )
+    embeddings = build_embedding_adapter(settings)
     retriever = Retriever(
         embedding_service=embeddings,
         store=store,
     )
-    llm_client = OllamaClient(
-        base_url=settings.OLLAMA_BASE_URL,
-        model=settings.LLM_MODEL,
-    )
+    llm_client = build_generation_adapter(settings)
     return AnswerService(
         retriever=retriever,
         prompt_builder=PromptBuilder(),
@@ -47,8 +41,7 @@ def post_chat(request: ChatRequest) -> ChatResponse:
             response_language=request.response_language,
             source_languages=request.source_languages,
         )
-    except OllamaConnectionError as exc:
+    except ModelProviderError as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
     except RuntimeError as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
-

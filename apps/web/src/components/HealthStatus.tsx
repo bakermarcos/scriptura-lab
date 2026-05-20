@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
+import { ActionIcon, Group, Loader, Text, Tooltip } from "@mantine/core";
+import { AlertTriangle, CheckCircle2, RefreshCw } from "lucide-react";
 
-import { getHealth, getLlmHealth } from "../services/api";
+import { getEmbeddingHealth, getHealth, getLlmHealth } from "../services/api";
 
 type StatusCard = {
   label: string;
@@ -21,13 +23,19 @@ export function HealthStatus() {
     value: "checking",
     tone: "neutral",
   });
+  const [embeddingStatus, setEmbeddingStatus] = useState<StatusCard>({
+    label: "Embeddings",
+    value: "checking",
+    tone: "neutral",
+  });
 
   async function refresh() {
     setLoading(true);
 
-    const [apiResult, llmResult] = await Promise.allSettled([
+    const [apiResult, llmResult, embeddingResult] = await Promise.allSettled([
       getHealth(),
       getLlmHealth(),
+      getEmbeddingHealth(),
     ]);
 
     if (apiResult.status === "fulfilled" && apiResult.value.status === "ok") {
@@ -56,7 +64,7 @@ export function HealthStatus() {
         label: "LLM",
         value: payload.status,
         tone: payload.status === "available" ? "positive" : "negative",
-        detail: payload.error || payload.model,
+        detail: payload.error || `${payload.provider}: ${payload.model}`,
       });
     } else {
       setLlmStatus({
@@ -70,6 +78,26 @@ export function HealthStatus() {
       });
     }
 
+    if (embeddingResult.status === "fulfilled") {
+      const payload = embeddingResult.value;
+      setEmbeddingStatus({
+        label: "Embeddings",
+        value: payload.status,
+        tone: payload.status === "available" ? "positive" : "negative",
+        detail: payload.error || `${payload.provider}: ${payload.model}`,
+      });
+    } else {
+      setEmbeddingStatus({
+        label: "Embeddings",
+        value: "unreachable",
+        tone: "negative",
+        detail:
+          embeddingResult.reason instanceof Error
+            ? embeddingResult.reason.message
+            : "Unknown embedding error",
+      });
+    }
+
     setLoading(false);
   }
 
@@ -78,32 +106,58 @@ export function HealthStatus() {
   }, []);
 
   return (
-    <section className="panel status-panel">
-      <div className="panel-heading status-heading">
-        <div>
-          <span className="eyebrow">Status</span>
-          <h2>Serviços locais</h2>
-        </div>
-        <button
-          className="secondary-button"
-          type="button"
+    <section className="status-strip" aria-label="Status dos serviços">
+      <Group gap="xs" wrap="wrap">
+        {[apiStatus, llmStatus, embeddingStatus].map((item) => (
+          <Tooltip
+            key={item.label}
+            label={item.detail || `${item.label}: ${item.value}`}
+            withArrow
+          >
+            <div className={`status-pill status-${item.tone}`}>
+              <StatusIcon tone={item.tone} loading={loading && item.value === "checking"} />
+              <span className="status-label">{item.label}</span>
+              <Text component="span" className="status-value">
+                {item.value}
+              </Text>
+            </div>
+          </Tooltip>
+        ))}
+      </Group>
+
+      <Tooltip label="Atualizar status" withArrow>
+        <ActionIcon
+          className="status-refresh"
+          aria-label="Atualizar status dos serviços"
+          variant="subtle"
           onClick={() => void refresh()}
           disabled={loading}
         >
-          {loading ? "Verificando..." : "Atualizar"}
-        </button>
-      </div>
-
-      <div className="status-grid">
-        {[apiStatus, llmStatus].map((item) => (
-          <article className="status-item" key={item.label}>
-            <span className="status-label">{item.label}</span>
-            <span className={`status-pill status-${item.tone}`}>{item.value}</span>
-            {item.detail ? <p className="status-detail">{item.detail}</p> : null}
-          </article>
-        ))}
-      </div>
+          {loading ? <Loader size={16} /> : <RefreshCw size={17} />}
+        </ActionIcon>
+      </Tooltip>
     </section>
   );
 }
 
+function StatusIcon({
+  tone,
+  loading,
+}: {
+  tone: StatusCard["tone"];
+  loading: boolean;
+}) {
+  if (loading) {
+    return <Loader size={14} aria-hidden="true" />;
+  }
+
+  if (tone === "positive") {
+    return <CheckCircle2 size={15} aria-hidden="true" />;
+  }
+
+  if (tone === "negative") {
+    return <AlertTriangle size={15} aria-hidden="true" />;
+  }
+
+  return <RefreshCw size={15} aria-hidden="true" />;
+}
