@@ -23,9 +23,8 @@ def test_prompt_builder_renders_question_language_and_sources() -> None:
         ],
     )
 
-    assert "Responda em pt-BR." in prompt
+    assert "The final answer must be written in pt-BR." in prompt
     assert "Qual a relação entre João 1 e Gênesis 1?" in prompt
-    assert "[Fonte 1]" in prompt
-    assert "Título: João 1 - Nota de estudo" in prompt
-    assert "Trecho:\nJoão 1 conecta o Logos ao princípio e à criação." in prompt
-
+    assert "[Source 1]" in prompt
+    assert "Title: João 1 - Nota de estudo" in prompt
+    assert "Retrieved passage:\nJoão 1 conecta o Logos ao princípio e à criação." in prompt

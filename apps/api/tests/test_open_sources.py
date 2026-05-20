@@ -10,11 +10,12 @@ ROOT_DIR = Path(__file__).resolve().parents[3]
 def test_bundled_open_sources_are_loadable() -> None:
     documents = MarkdownLoader().load_directory(ROOT_DIR / "data" / "open" / "sources")
 
-    assert len(documents) == 7
+    assert len(documents) == 5
     assert {document.id for document in documents} >= {
-        "kjv-john-1-1-5",
-        "sblgnt-john-1-1-5",
-        "oshb-genesis-1-1-3",
+        "kjv-complete",
+        "sblgnt-complete",
+        "oshb-wlc-complete",
+        "unfoldingword-open-bible-stories-complete",
     }
     assert all(document.status == "approved" for document in documents)
     assert all(document.use_in_rag for document in documents)
